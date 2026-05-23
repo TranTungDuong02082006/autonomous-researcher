@@ -1,0 +1,28 @@
+llm:
+  model: "Qwen/Qwen2.5-14B-Instruct"
+  backend: "vllm" # Options: "vllm", "transformers", "openai"
+  quantization: "4bit" # For transformers backend: "4bit", "8bit", None
+  max_tokens: 4096
+  temperature: 0.7
+  api_base: "http://localhost:8000/v1" # vllm or openai base url
+  api_key: "dummy-key" # Put Tavily or LLM API Key here or load from env var
+
+agent:
+  max_steps: 15
+  max_searches_per_question: 3
+  max_reflection_loops: 3
+  
+tools:
+  search_provider: "tavily" # Options: "tavily", "ddg"
+  search_max_results: 5
+  scrape_timeout: 15
+  
+memory:
+  vector_db: "chromadb"
+  embedding_model: "all-MiniLM-L6-v2" # Light embedding model for local development, swap to "BAAI/bge-m3" if needed
+  chunk_size: 512
+  chunk_overlap: 50
+
+logging:
+  trace_dir: "logs/traces"
+  wandb_project: "autonomous-researcher"

@@ -1,0 +1,13 @@
+llm:
+  model: "Qwen/Qwen2.5-14B-Instruct"
+  backend: "openai"
+  max_tokens: 4096
+
+agent:
+  max_steps: 15
+  max_searches_per_question: 3
+  max_reflection_loops: 3
+
+tools:
+  search_provider: "ddg"
+  search_max_results: 5
