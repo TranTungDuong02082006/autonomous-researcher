@@ -3,7 +3,7 @@
 An advanced, multi-agent autonomous framework designed for deep internet research, critical peer review, fact synthesis, and citation-accurate report compilation. Powered by LangGraph state machine reasoning and local vector memory.
 
 <p align="center">
-  <img src="logo_autonomous_researcher.png" alt="Autonomous Researcher Logo" width="700" />
+  <img src="logo_autonomous_researcher.png" alt="Autonomous Researcher Logo" width="1100" />
 </p>
 
 ---
