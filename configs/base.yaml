@@ -1,6 +1,6 @@
 llm:
   model: "Qwen/Qwen2.5-14B-Instruct"
-  backend: "vllm" # Options: "vllm", "transformers", "openai"
+  backend: "transformers" # Options: "vllm", "transformers", "openai"
   quantization: "4bit" # For transformers backend: "4bit", "8bit", None
   max_tokens: 4096
   temperature: 0.7
