@@ -13,7 +13,7 @@ agent:
   max_reflection_loops: 3
   
 tools:
-  search_provider: "tavily" # Options: "tavily", "ddg"
+  search_provider: "ddg" # Options: "tavily", "ddg" — set TAVILY_API_KEY in .env to use Tavily
   search_max_results: 5
   scrape_timeout: 15
   
