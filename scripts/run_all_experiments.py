@@ -6,6 +6,10 @@ import yaml
 import json
 import logging
 import pandas as pd
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Add src/ to path
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))

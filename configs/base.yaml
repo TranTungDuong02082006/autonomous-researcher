@@ -5,7 +5,7 @@ llm:
   max_tokens: 4096
   temperature: 0.7
   api_base: "http://localhost:8000/v1" # vllm or openai base url
-  api_key: "dummy-key" # Put Tavily or LLM API Key here or load from env var
+  api_key: null  # Load from OPENAI_API_KEY env var. Never commit real keys here.
 
 agent:
   max_steps: 15
@@ -19,10 +19,21 @@ tools:
   
 memory:
   vector_db: "chromadb"
-  embedding_model: "all-MiniLM-L6-v2" # Light embedding model for local development, swap to "BAAI/bge-m3" if needed
+  embedding_model: "BAAI/bge-m3" # State-of-the-art embedding model for premium local research
   chunk_size: 512
   chunk_overlap: 50
 
 logging:
   trace_dir: "logs/traces"
   wandb_project: "autonomous-researcher"
+
+# Fine-Tuning Models Integration
+fine_tuned:
+  reviewer:
+    enabled: true
+    base_model: "Qwen/Qwen2.5-14B-Instruct"  # Target base model in adapter_config.json
+    adapter_path: "reviewer lora"
+  reranker:
+    enabled: true
+    model_path: "reranker model"
+

@@ -1,0 +1,27 @@
+[
+  {
+    "id": "hp-1",
+    "question": "Which architecture is older: Transformer (attention-based) or LSTM?",
+    "ground_truth_answer": "LSTM (Long Short-Term Memory) was introduced in 1997, while the Transformer was introduced in 2017.",
+    "supporting_facts": [
+      "LSTM was introduced in 1997 by Hochreiter & Schmidhuber.",
+      "Transformer was introduced in 2017 in 'Attention is All You Need'."
+    ]
+  },
+  {
+    "id": "hp-2",
+    "question": "What was the primary model size in parameters of the original GPT-3 model described by OpenAI in 2020?",
+    "ground_truth_answer": "175 billion parameters.",
+    "supporting_facts": [
+      "GPT-3 model sizes range from 125M to 175B parameters."
+    ]
+  },
+  {
+    "id": "hp-3",
+    "question": "Which optimization trick was designed specifically to accelerate low-rank fine-tuning of LLMs?",
+    "ground_truth_answer": "LoRA (Low-Rank Adaptation).",
+    "supporting_facts": [
+      "LoRA freezes pre-trained weights and adds trainable rank decomposition matrices."
+    ]
+  }
+]

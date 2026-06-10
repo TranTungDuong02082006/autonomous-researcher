@@ -1,5 +1,6 @@
 import logging
 import concurrent.futures
+import threading
 from dataclasses import dataclass, field
 from typing import List, Optional
 import trafilatura
@@ -14,49 +15,65 @@ class ScrapedPage:
     chunks: List[str] = field(default_factory=list)
 
 class WebScraper:
+    # Class-level lock bảo vệ lxml/libxml2 C-extensions khỏi heap corruption
+    # khi nhiều thread cùng parse DOM song song trên Kaggle/Linux
+    _dom_parse_lock = threading.Lock()
+
     def __init__(self, timeout: int = 15, chunk_size: int = 512, chunk_overlap: int = 50):
         self.timeout = timeout
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
 
     def scrape(self, url: str) -> Optional[ScrapedPage]:
-        """Scrape raw page content using trafilatura and split into chunks."""
-        logger.info(f"Scraping URL: {url}")
+        """Scrape main text using Trafilatura with ultra-strict precision parameters."""
+        logger.info(f"Scraping URL with high precision filter: {url}")
         try:
-            # Fetch HTML with timeout
             downloaded = trafilatura.fetch_url(url, no_ssl=True)
             if not downloaded:
-                logger.warning(f"Failed to fetch content from URL: {url}")
                 return None
 
-            # Extract main content and title
-            content = trafilatura.extract(
-                downloaded, 
-                include_comments=False, 
-                include_tables=True,
-                no_fallback=False
-            )
+            # Lock bảo vệ lxml/libxml2 khỏi double-free / heap corruption
+            # khi ThreadPoolExecutor scrape nhiều URL song song
+            with WebScraper._dom_parse_lock:
+                content = trafilatura.extract(
+                    downloaded,
+                    include_comments=False,
+                    include_tables=True,
+                    no_fallback=False,
+                    favor_precision=True,
+                )
             
             if not content:
-                logger.warning(f"Could not extract clean text from URL: {url}")
                 return None
 
-            # Attempt to extract title
             metadata = trafilatura.extract_metadata(downloaded)
             title = metadata.title if metadata and metadata.title else "Untitled Page"
 
-            # Filter junk and chunk content
-            clean_content = self._filter_junk(content)
-            chunks = self._chunk(clean_content, size=self.chunk_size, overlap=self.chunk_overlap)
+            # --- LANGUAGE-AGNOSTIC CONTENT CLEANING ---
+            lines = content.split("\n")
+            filtered_lines = []
+            for line in lines:
+                line_stripped = line.strip()
+                if not line_stripped:
+                    continue
+                # Skip common navigation/boilerplate labels (language-agnostic)
+                if line_stripped.lower() in [
+                    "menu", "navigation", "search", "share", "follow us",
+                    "cookie policy", "privacy policy", "terms of service",
+                    "advertisement", "sponsored", "subscribe", "sign in",
+                    "log in", "sign up", "register",
+                ]:
+                    continue
+                filtered_lines.append(line_stripped)
+                
+            clean_content = "\n".join(filtered_lines)
+            if len(clean_content.split()) < 20:
+                return None
 
-            return ScrapedPage(
-                url=url,
-                title=title,
-                content=clean_content,
-                chunks=chunks
-            )
+            chunks = self._chunk(clean_content, size=self.chunk_size, overlap=self.chunk_overlap)
+            return ScrapedPage(url=url, title=title, content=clean_content, chunks=chunks)
         except Exception as e:
-            logger.error(f"Error scraping {url}: {e}")
+            logger.error(f"Error scraping high-precision {url}: {e}")
             return None
 
     def scrape_parallel(self, urls: List[str]) -> List[ScrapedPage]:
@@ -87,6 +104,10 @@ class WebScraper:
                 continue
             cleaned_lines.append(line_strip)
         return "\n".join(cleaned_lines)
+
+    def chunk_text(self, text: str) -> List[str]:
+        """Public wrapper for chunking — used by Researcher._safe_chunk()."""
+        return self._chunk(text, size=self.chunk_size, overlap=self.chunk_overlap)
 
     def _chunk(self, text: str, size: int = 512, overlap: int = 50) -> List[str]:
         """Split text into overlapping chunks of words."""

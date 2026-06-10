@@ -10,14 +10,23 @@ class Summarizer:
 
     def summarize(self, text: str, query_context: str) -> str:
         """
-        Compress text (e.g. 5-10k tokens) down to 500-1000 tokens focusing on query_context.
-        Mitigates context window issues.
+        Compress text down to fit window limits.
+        Gia cố Strict Window Clipping về 1800 từ để bảo vệ luồng chạy an toàn trước hạn mức 12k TPM.
         """
         logger.info("Summarizing text with query context...")
         
-        # If the text is very short, no need to summarize
-        if len(text.split()) < 300:
+        words = text.split()
+        total_words = len(words)
+        
+        if total_words < 300:
             return text
+
+        # 🩹 VÁ LỖI HIỆU NĂNG: Khóa cứng cửa sổ 1800 từ để tổng tokens gửi lên luôn dưới 3000 tokens
+        MAX_SAFE_WORDS = 1800
+        if total_words > MAX_SAFE_WORDS:
+            logger.warning(f"⚠️ Phát hiện tài liệu quá dài ({total_words} từ). Ép nén cứng về {MAX_SAFE_WORDS} từ để tránh bẫy 413 Groq...")
+            words = words[:MAX_SAFE_WORDS]
+            text = " ".join(words) + "\n[Truncated for context length compliance]"
 
         system_prompt = (
             "You are an expert academic summarizer. Your job is to compress a long source text "
@@ -43,7 +52,5 @@ class Summarizer:
             summary = self.llm_client.generate(messages, temperature=0.3, max_tokens=1000)
             return summary.strip()
         except Exception as e:
-            logger.error(f"Summarization failed: {e}. Returning truncated text as fallback.")
-            # Fallback to simple truncation
-            words = text.split()
+            logger.error(f"❌ Summarization layer failed: {e}. Executing immediate substring truncation fallback.")
             return " ".join(words[:800]) + "..."

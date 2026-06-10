@@ -1,0 +1,7 @@
+,total_questions,mean_f1_score,mean_citation_precision,mean_judge_comprehensiveness,mean_judge_depth,mean_overall_judge,mean_step_count,success_rate
+exp3_agent_base,1.0,0.002939015429831007,1.0,2.0,2.5,2.5,9.0,1.0
+exp6_agent_full,3.0,0.023087718715229147,1.0,3.0,3.0,3.0,5.0,1.0
+exp1_vanilla_llm,3.0,0.13110034974441753,1.0,2.3333333333333335,2.1666666666666665,2.723333333333333,2.0,1.0
+exp5_agent_ft_reranker,3.0,0.0074570841883572865,1.0,3.0,3.0,3.0,2.0,1.0
+exp2_rag_baseline,3.0,0.141860286787823,1.0,3.0,3.0,3.0,2.0,1.0
+exp4_agent_ft_reviewer,3.0,0.00794969641404583,1.0,3.0,3.0,3.0,2.0,1.0

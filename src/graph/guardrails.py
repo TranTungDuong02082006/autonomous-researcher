@@ -45,12 +45,31 @@ def check_repeated_queries(state: AgentState) -> bool:
     return False
 
 def check_evidence_sufficiency(state: AgentState) -> bool:
-    """Check if we have enough collected evidence overall to skip further research cycles."""
+    """Check if we have enough collected evidence overall to skip further research cycles.
+    Requires both a minimum count AND a minimum number of unique source domains
+    to prevent low-quality bulk evidence from triggering early exit.
+    """
     evidence = state.get("collected_evidence", [])
-    # If we have gathered more than 15 evidence chunks, we have plenty to write a strong report
     if len(evidence) >= 15:
-        logger.info(f"Guardrail triggered: sufficiency check satisfied with {len(evidence)} evidence chunks.")
-        return True
+        # Also require at least 3 unique source domains to ensure diversity
+        unique_domains = set()
+        for ev in evidence:
+            url = getattr(ev, "source_url", "") or ""
+            # Extract domain from URL
+            try:
+                from urllib.parse import urlparse
+                host = urlparse(url).netloc.lower()
+                if host.startswith("www."):
+                    host = host[4:]
+                if host:
+                    unique_domains.add(host)
+            except Exception:
+                pass
+        if len(unique_domains) >= 3:
+            logger.info(f"Guardrail triggered: sufficiency check satisfied with {len(evidence)} evidence chunks from {len(unique_domains)} unique domains.")
+            return True
+        else:
+            logger.info(f"Evidence count sufficient ({len(evidence)}) but only {len(unique_domains)} unique domains (need >= 3). Continuing research.")
     return False
 
 def force_terminate(state: AgentState, reason: str) -> AgentState:

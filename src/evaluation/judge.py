@@ -42,18 +42,33 @@ class LLMJudge:
             {"role": "user", "content": user_prompt}
         ]
 
-        try:
-            raw_res = self.llm_client.generate_structured(messages, schema=JudgeResultSchema)
-            return JudgeResultSchema(**raw_res)
-        except Exception as e:
-            logger.error(f"LLM Judge scoring failed: {e}. Returning default mid-tier scores.")
-            return JudgeResultSchema(
-                comprehensiveness=3.0,
-                logic_and_structure=3.0,
-                depth_of_research=3.0,
-                overall_score=3.0,
-                justification=f"Failed to score report due to error: {e}"
-            )
+        max_retries = 5
+        backoff = 2.0
+        for attempt in range(max_retries):
+            try:
+                raw_res = self.llm_client.generate_structured(messages, schema=JudgeResultSchema)
+                return JudgeResultSchema(**raw_res)
+            except Exception as e:
+                err_str = str(e).lower()
+                is_rate_limit = "429" in err_str or "rate limit" in err_str or "too many requests" in err_str
+                
+                if attempt < max_retries - 1 and is_rate_limit:
+                    sleep_time = backoff * (2 ** attempt)
+                    logger.warning(
+                        f"LLM Judge scoring rate-limited: {e}. "
+                        f"Retrying in {sleep_time:.1f}s (attempt {attempt + 1}/{max_retries})..."
+                    )
+                    time.sleep(sleep_time)
+                elif attempt < max_retries - 1:
+                    sleep_time = 1.0 * (attempt + 1)
+                    logger.warning(
+                        f"LLM Judge scoring transient error: {e}. "
+                        f"Retrying in {sleep_time:.1f}s (attempt {attempt + 1}/{max_retries})..."
+                    )
+                    time.sleep(sleep_time)
+                else:
+                    logger.error(f"LLM Judge scoring completely failed after {max_retries} attempts: {e}")
+                    raise e
 
     def judge_citation(self, claim: str, evidence_text: str) -> bool:
         """Verify if a specific factual claim is fully supported by the referenced evidence chunk."""
@@ -77,8 +92,30 @@ class LLMJudge:
             {"role": "user", "content": user_prompt}
         ]
 
-        try:
-            res = self.llm_client.generate_structured(messages, schema=CitationSupport)
-            return res.get("supported", False)
-        except Exception:
-            return False
+        max_retries = 5
+        backoff = 2.0
+        for attempt in range(max_retries):
+            try:
+                res = self.llm_client.generate_structured(messages, schema=CitationSupport)
+                return res.get("supported", False)
+            except Exception as e:
+                err_str = str(e).lower()
+                is_rate_limit = "429" in err_str or "rate limit" in err_str or "too many requests" in err_str
+                
+                if attempt < max_retries - 1 and is_rate_limit:
+                    sleep_time = backoff * (2 ** attempt)
+                    logger.warning(
+                        f"LLM Judge citation verification rate-limited: {e}. "
+                        f"Retrying in {sleep_time:.1f}s (attempt {attempt + 1}/{max_retries})..."
+                    )
+                    time.sleep(sleep_time)
+                elif attempt < max_retries - 1:
+                    sleep_time = 1.0 * (attempt + 1)
+                    logger.warning(
+                        f"LLM Judge citation verification transient error: {e}. "
+                        f"Retrying in {sleep_time:.1f}s (attempt {attempt + 1}/{max_retries})..."
+                    )
+                    time.sleep(sleep_time)
+                else:
+                    logger.error(f"LLM Judge citation verification completely failed after {max_retries} attempts: {e}")
+                    raise e

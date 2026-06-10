@@ -34,9 +34,19 @@ def build_research_graph(
         logger.info("--- PLANNER NODE START ---")
         state["status"] = "planning"
         query = state["user_query"]
-        plan = planner.plan(query)
+        
+        config = state.get("config", {}) or {}
+        max_searches = config.get("agent", {}).get("max_searches_per_question", 3)
+        
+        context = planner._extract_context(query)
+        if max_searches == 0:
+            logger.info("Zero-shot bypass activated (max_searches_per_question == 0). Returning empty plan.")
+            plan = []
+        else:
+            plan = planner._generate_tasks(query, context)
         
         return {
+            "research_context": context,
             "research_plan": plan,
             "current_task_idx": 0,
             "reflection_count": 0,
@@ -80,23 +90,15 @@ def build_research_graph(
         else:
             new_evidence = researcher.execute_task(current_task, state)
 
-        # Merge evidence preserving uniqueness
-        existing_evidence = state.get("collected_evidence", [])
-        existing_texts = {ev.text for ev in existing_evidence}
-        merged_evidence = list(existing_evidence)
-        
-        for ev in new_evidence:
-            if ev.text not in existing_texts:
-                merged_evidence.append(ev)
-
         # Enforce check on repeated query loop guardrail
         if check_repeated_queries(state):
             force_state = force_terminate(state, "Infinite query loop detected.")
-            force_state["collected_evidence"] = merged_evidence
+            # Rely on LangGraph custom reducer for collected_evidence to merge safely
+            force_state["collected_evidence"] = new_evidence
             return force_state
 
         return {
-            "collected_evidence": merged_evidence,
+            "collected_evidence": new_evidence,
             "status": "reviewing",
             "step_count": step_count,
             "review_feedback": None # Reset feedback
@@ -107,19 +109,26 @@ def build_research_graph(
         logger.info("--- PEER REVIEWER NODE START ---")
         idx = state["current_task_idx"]
         plan = list(state["research_plan"])
+        if idx >= len(plan):
+            logger.warning(f"Reviewer entered with idx {idx} >= plan length {len(plan)}. Transitioning to writing.")
+            return {"status": "writing"}
         current_task = plan[idx]
 
         # Gather evidence relevant to this task for critique
         evidence = state.get("collected_evidence", [])
         
-        review_result = reviewer.review(evidence, current_task)
+        review_result = reviewer.review(evidence, current_task, state["research_context"])
         
         reflection_count = state.get("reflection_count", 0)
 
-        if review_result.sufficient:
-            logger.info(f"Evidence for task #{current_task.id} is SUFFICIENT. Saving findings.")
-            plan[idx].findings = review_result.findings
-            plan[idx].status = "completed"
+        # Handle system errors first
+        if review_result.is_system_error:
+            logger.error(f"Reviewer encountered a system error for task #{current_task.id}. Advancing task without reflection.")
+            # Sanitize findings to avoid leaking raw error strings into the final report
+            plan[idx] = current_task.model_copy(update={
+                "findings": "Incomplete findings due to a system error during review.",
+                "status": "failed"
+            })
             
             return {
                 "research_plan": plan,
@@ -128,28 +137,53 @@ def build_research_graph(
                 "review_feedback": None,
                 "status": "researching"
             }
+
+        decision = {
+            "sufficient": review_result.sufficient,
+            "collected_evidence": [ev.model_dump() if hasattr(ev, 'model_dump') else ev for ev in evidence]
+        }
+
+        if review_result.sufficient:
+            logger.info(f"Evidence for task #{current_task.id} is SUFFICIENT. Saving findings.")
+            plan[idx] = current_task.model_copy(update={
+                "findings": review_result.findings,
+                "status": "completed"
+            })
+            
+            return {
+                "research_plan": plan,
+                "current_task_idx": idx + 1,
+                "reflection_count": 0,
+                "review_feedback": None,
+                "status": "researching",
+                "reviewer_decisions": [decision]
+            }
         else:
             logger.info(f"Evidence for task #{current_task.id} is INSUFFICIENT.")
             reflection_count += 1
             
             if reflection_count >= max_reflection_loops:
                 logger.warning(f"Exceeded max reflection loops ({max_reflection_loops}) for task #{current_task.id}. Forcing compilation of findings.")
-                plan[idx].findings = review_result.findings if review_result.findings else "Incomplete findings due to search limits."
-                plan[idx].status = "failed"
+                plan[idx] = current_task.model_copy(update={
+                    "findings": review_result.findings if review_result.findings else "Incomplete findings due to search limits.",
+                    "status": "failed"
+                })
                 
                 return {
                     "research_plan": plan,
                     "current_task_idx": idx + 1,
                     "reflection_count": 0,
                     "review_feedback": None,
-                    "status": "researching"
+                    "status": "researching",
+                    "reviewer_decisions": [decision]
                 }
             else:
                 logger.info(f"Initiating reflection loop {reflection_count}/{max_reflection_loops} with feedback.")
                 return {
                     "reflection_count": reflection_count,
                     "review_feedback": review_result.missing_info,
-                    "status": "researching"
+                    "status": "researching",
+                    "reviewer_decisions": [decision]
                 }
 
     # Define Node 4: Writer

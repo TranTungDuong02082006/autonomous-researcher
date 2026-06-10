@@ -30,7 +30,7 @@ def test_check_repeated_queries():
     }
     state_similar = {
         "search_history": [
-            SearchQuery(query="Transformer architectures paper google", timestamp=""),
+            SearchQuery(query="Transformer architecture paper google", timestamp=""),
             SearchQuery(query="transformer architecture paper google", timestamp="")
         ]
     }
@@ -41,11 +41,22 @@ def test_check_repeated_queries():
 
 def test_check_evidence_sufficiency():
     state_low = {
-        "collected_evidence": [EvidenceModel(text="A", source_url="B", title="C", score=1.0)] * 5
+        "collected_evidence": [EvidenceModel(text="A", source_url="http://a.com", title="C", score=1.0)] * 5
     }
+    # Sufficient count but only 1 domain — should NOT trigger
+    state_single_domain = {
+        "collected_evidence": [EvidenceModel(text="A", source_url="http://a.com", title="C", score=1.0)] * 20
+    }
+    # Sufficient count AND >= 3 unique domains — should trigger
     state_sufficient = {
-        "collected_evidence": [EvidenceModel(text="A", source_url="B", title="C", score=1.0)] * 20
+        "collected_evidence": (
+            [EvidenceModel(text="A", source_url="http://a.com/1", title="C", score=1.0)] * 5 +
+            [EvidenceModel(text="B", source_url="http://b.com/1", title="C", score=1.0)] * 5 +
+            [EvidenceModel(text="C", source_url="http://c.com/1", title="C", score=1.0)] * 5 +
+            [EvidenceModel(text="D", source_url="http://d.com/1", title="C", score=1.0)] * 5
+        )
     }
 
     assert check_evidence_sufficiency(state_low) is False
+    assert check_evidence_sufficiency(state_single_domain) is False  # Bug 12: single domain rejected
     assert check_evidence_sufficiency(state_sufficient) is True

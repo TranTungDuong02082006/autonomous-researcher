@@ -1,0 +1,10 @@
+{
+  "total_questions": 2,
+  "mean_f1_score": 0.0,
+  "mean_citation_precision": 0.0,
+  "mean_judge_comprehensiveness": 1.0,
+  "mean_judge_depth": 1.0,
+  "mean_overall_judge": 1.0,
+  "mean_step_count": 0.0,
+  "success_rate": 0.0
+}

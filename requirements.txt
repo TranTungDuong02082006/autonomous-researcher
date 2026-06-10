@@ -1,29 +1,40 @@
-torch>=2.4
-transformers>=4.45
-accelerate
-bitsandbytes
-peft
-trl
-unsloth
-vllm
-langgraph
-langchain
-langchain-community
-sentence-transformers
-chromadb
-beautifulsoup4
-trafilatura
-tavily-python
-duckduckgo-search
-wandb
-datasets
-pydantic>=2.0
-gradio
-pytest
-pyyaml
-pandas
-matplotlib
-seaborn
-httpx
-openai
-aiohttp
+# Core Deep Learning & NLP
+torch>=2.4.0
+transformers>=4.45.0
+accelerate>=0.34.0
+bitsandbytes>=0.43.0
+peft>=0.12.0
+trl>=0.9.6
+unsloth>=2024.8
+vllm>=0.6.0
+
+# Multi-Agent & Orchestration Framework
+langgraph>=0.2.2
+langchain>=0.2.5
+langchain-community>=0.2.5
+
+# Search, Memory & Vector DB
+sentence-transformers>=3.0.1
+chromadb>=0.5.0
+beautifulsoup4>=4.12.3
+trafilatura>=1.12.0
+tavily-python>=0.5.0
+duckduckgo-search>=6.2.0
+
+# Experiment Tracking & Dataset Management
+wandb>=0.17.1
+datasets>=2.20.0
+pydantic>=2.7.4
+
+# UI & Presentation
+gradio>=4.36.0
+
+# Testing & Utilities
+pytest>=8.2.2
+pyyaml>=6.0.1
+pandas>=2.2.2
+matplotlib>=3.9.0
+seaborn>=0.13.2
+httpx>=0.27.0
+openai>=1.30.0
+aiohttp>=3.9.5
