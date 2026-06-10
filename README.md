@@ -48,23 +48,44 @@ autonomous-researcher/
 
 ## ⚙️ Environment Setup
 
-### Install Dependencies
-Ensure you have Python 3.10+ installed. Execute the setup script or install via pip:
+### 1. Install Dependencies
+Ensure you have **Python 3.10+** installed. You can set up the environment automatically:
 ```bash
 bash scripts/setup_env.sh
 ```
-
-Or manually:
+Or manually using pip:
 ```bash
 pip install -r requirements.txt
 ```
 
-### Search API Key Configuration (Optional)
-To use Tavily as your primary search tool, set the environment variable:
+### 2. Configure Environment Variables
+Copy `.env.example` to `.env` to configure your keys and custom paths:
 ```bash
-export TAVILY_API_KEY="your-tavily-api-key"
+cp .env.example .env
 ```
-*If not provided, the search provider will automatically fall back to completely free, unlimited **DuckDuckGo Search**.*
+
+#### Key Configurations:
+- **Kaggle API Credentials (Required for fine-tuned models auto-download)**:
+  To automatically download the custom fine-tuned reviewer LoRA adapter and reranker models, retrieve your Kaggle API key from [Kaggle settings](https://www.kaggle.com/settings) (click **Create New Token**), and set:
+  ```env
+  KAGGLE_USERNAME="your_kaggle_username"
+  KAGGLE_KEY="your_kaggle_api_key"
+  ```
+  *If Kaggle credentials are not configured, the system will run using the base LLM without the fine-tuned components.*
+  *Alternatively, you can manually download [Reviewer LoRA](https://www.kaggle.com/models/ziangtran123/reviewer-lora) and [Reranker FT](https://www.kaggle.com/models/ziangtran123/reranker-ft) and place the extracted directories `reviewer_lora/` and `reranker_ft/` directly in the project root.*
+
+- **Search Provider (Optional)**:
+  To use Tavily as the primary search engine, set:
+  ```env
+  TAVILY_API_KEY="your_tavily_key"
+  ```
+  *If left empty, search queries will automatically fall back to free, unlimited **DuckDuckGo Search**.*
+
+- **Cloud LLM serving (Optional)**:
+  By default, a local **Qwen2.5-14B** model is served out-of-the-box. To speed up execution via a cloud LLM, configure a Groq API key:
+  ```env
+  GROQ_API_KEY="gsk_your_key_here"
+  ```
 
 ---
 
