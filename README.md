@@ -4,6 +4,20 @@ An advanced, multi-agent autonomous framework designed for deep internet researc
 
 ---
 
+## 💡 Overview & Core Concept
+
+**System-2 Autonomous AI Researcher** is an end-to-end framework built to fully automate the scholarly and industrial research lifecycle. Unlike standard single-shot LLM queries or naive RAG pipelines that often hallucinate or output superficial answers, this system acts as a **comprehensive, autonomous research assistant** mimicking the rigorous workflow of a human academic.
+
+By combining structured state machines, parallel web crawling, vector-based memory retrieval, and fine-tuned critique mechanisms, the agent dynamically crawls, critiques, and synthesizes complex information into high-quality, citation-grounded reports.
+
+### 🌟 Key Pillars of the System
+- **Comprehensive Research Lifecycle Support**: The agent manages the entire process from query expansion, plan formulation, iterative search-scraping, peer-review critique, to final publication-ready synthesis.
+- **System-2 Deliberation Loops**: Implements agentic self-reflection, allowing a dedicated Reviewer agent to critique draft reports and prompt the Researcher for additional information, correcting omissions and resolving contradictions before finalizing.
+- **Grounded & Verifiable Citations**: Every claim in the generated report is strictly mapped back to actual source content indexed in a local vector database. The pipeline calculates citation precision to guarantee that zero hallucinated claims or links are published.
+- **Continuous Optimization via Fine-Tuning**: Features integrated pipelines to extract execution traces and fine-tune specialized reviewer and reranker models, enhancing domain accuracy while lowering step count and API latency.
+
+---
+
 ## 📂 Repository Structure
 
 ```text
