@@ -1,7 +1,7 @@
 ,total_questions,mean_f1_score,mean_citation_precision,mean_judge_comprehensiveness,mean_judge_depth,mean_overall_judge,mean_step_count,success_rate
-exp3_agent_base,1.0,0.002939015429831007,1.0,2.0,2.5,2.5,9.0,1.0
-exp6_agent_full,3.0,0.023087718715229147,1.0,3.0,3.0,3.0,5.0,1.0
-exp1_vanilla_llm,3.0,0.13110034974441753,1.0,2.3333333333333335,2.1666666666666665,2.723333333333333,2.0,1.0
-exp5_agent_ft_reranker,3.0,0.0074570841883572865,1.0,3.0,3.0,3.0,2.0,1.0
-exp2_rag_baseline,3.0,0.141860286787823,1.0,3.0,3.0,3.0,2.0,1.0
-exp4_agent_ft_reviewer,3.0,0.00794969641404583,1.0,3.0,3.0,3.0,2.0,1.0
+exp1_vanilla_llm,14,0.1152,0.0,4.857,4.286,4.643,2.0,1.0
+exp2_rag_baseline,14,0.0908,0.0,3.5,3.429,3.279,2.0,1.0
+exp3_agent_base,14,0.0661,0.9167,4.071,3.786,3.85,8.3,1.0
+exp4_agent_ft_reviewer,14,0.0331,0.9286,1.857,1.821,1.814,6.7,1.0
+exp5_agent_ft_reranker,14,0.0724,0.9286,3.964,3.679,3.679,8.6,1.0
+exp6_agent_full,14,0.045,1.0,3.214,2.964,3.05,7.2,1.0

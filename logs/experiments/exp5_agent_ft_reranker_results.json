@@ -1,10 +1,10 @@
 {
-  "total_questions": 1,
-  "mean_f1_score": 0.14814814814814814,
-  "mean_citation_precision": 1.0,
-  "mean_judge_comprehensiveness": 3.0,
-  "mean_judge_depth": 3.0,
-  "mean_overall_judge": 3.0,
-  "mean_step_count": 4.0,
+  "total_questions": 14,
+  "mean_f1_score": 0.0724,
+  "mean_citation_precision": 0.9286,
+  "mean_judge_comprehensiveness": 3.964,
+  "mean_judge_depth": 3.679,
+  "mean_overall_judge": 3.679,
+  "mean_step_count": 8.6,
   "success_rate": 1.0
 }

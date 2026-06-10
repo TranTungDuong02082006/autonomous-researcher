@@ -18,10 +18,16 @@ import gradio as gr
 import json
 import logging
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 # Add src/ to path
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(_project_root)
+
+# ── Auto-download fine-tuned model weights from Kaggle if not present ────────
+from src.utils.model_downloader import ensure_fine_tuned_models
+_model_availability = ensure_fine_tuned_models(project_root=_project_root)
+# ─────────────────────────────────────────────────────────────────────────────
 
 from src.models.llm_server import LLMClient
 from src.tools.web_search import WebSearchTool
@@ -36,14 +42,14 @@ from src.agents.reviewer import Reviewer
 from src.agents.writer import Writer
 from src.graph.build_graph import build_research_graph
 
-# Setup base configurations
-CONFIG_PATH = "configs/base.yaml"
+# Setup base configurations (use absolute path for reliability)
+CONFIG_PATH = os.path.join(_project_root, "configs", "base.yaml")
 if os.path.exists(CONFIG_PATH):
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
 else:
     config = {
-        "llm": {"model": "Qwen/Qwen2.5-14B-Instruct", "backend": "openai"},
+        "llm": {"model": "Qwen/Qwen2.5-14B-Instruct", "backend": "transformers", "quantization": "4bit"},
         "tools": {"search_provider": "ddg", "search_max_results": 5, "scrape_timeout": 15},
         "memory": {"embedding_model": "BAAI/bge-m3", "chunk_size": 512, "chunk_overlap": 50},
         "agent": {"max_reflection_loops": 3},
@@ -51,11 +57,11 @@ else:
             "reviewer": {
                 "enabled": True,
                 "base_model": "Qwen/Qwen2.5-14B-Instruct",
-                "adapter_path": "reviewer lora"
+                "adapter_path": os.path.join(_project_root, "reviewer_lora")
             },
             "reranker": {
                 "enabled": True,
-                "model_path": "reranker model"
+                "model_path": os.path.join(_project_root, "reranker_ft")
             }
         }
     }

@@ -32,8 +32,8 @@ fine_tuned:
   reviewer:
     enabled: true
     base_model: "Qwen/Qwen2.5-14B-Instruct"  # Target base model in adapter_config.json
-    adapter_path: "reviewer lora"
+    adapter_path: "reviewer_lora"             # Directory inside project root (auto-downloaded from Kaggle)
   reranker:
     enabled: true
-    model_path: "reranker model"
+    model_path: "reranker_ft"                 # Directory inside project root (auto-downloaded from Kaggle)
 

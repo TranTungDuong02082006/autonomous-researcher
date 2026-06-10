@@ -9,6 +9,7 @@
 # MODEL WEIGHTS (too large for GitHub, use HuggingFace Hub)
 # ============================================================
 reranker_ft/model.safetensors
+reviewer_lora/adapter_model.safetensors
 reviewer_lora_v2_adapter/adapter_model.safetensors
 models/                          # Downloaded HuggingFace model cache (auto-generated)
 
