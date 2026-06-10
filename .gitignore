@@ -10,6 +10,7 @@
 # ============================================================
 reranker_ft/model.safetensors
 reviewer_lora_v2_adapter/adapter_model.safetensors
+models/                          # Downloaded HuggingFace model cache (auto-generated)
 
 # ============================================================
 # PYTHON CACHE & BUILD ARTIFACTS

@@ -1,10 +1,13 @@
 import os
 import sys
 
-# Use platform-aware default for HuggingFace cache instead of hard-coded Windows path
-_hf_cache = os.environ.get("HF_HOME", os.path.join(os.path.expanduser("~"), ".cache", "huggingface"))
-os.environ.setdefault("HF_HOME", _hf_cache)
-os.environ.setdefault("TRANSFORMERS_CACHE", _hf_cache)
+# HuggingFace model cache: defaults to models/ inside project root
+# Override by setting HF_HOME in your .env file
+_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_default_hf_home = os.path.join(_project_root, "models")
+_hf_home = os.environ.get("HF_HOME", _default_hf_home)
+os.environ["HF_HOME"] = _hf_home
+os.environ["TRANSFORMERS_CACHE"] = _hf_home
 import yaml
 import gradio as gr
 import json

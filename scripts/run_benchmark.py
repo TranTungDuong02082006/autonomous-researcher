@@ -5,8 +5,15 @@ import yaml
 import json
 import logging
 
+# HuggingFace model cache: defaults to models/ inside project root
+# Override by setting HF_HOME in your .env file
+_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_hf_home = os.environ.get("HF_HOME", os.path.join(_project_root, "models"))
+os.environ["HF_HOME"] = _hf_home
+os.environ["TRANSFORMERS_CACHE"] = _hf_home
+
 # Add src/ to path
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(_project_root)
 
 from src.evaluation.benchmarks.loaders import HotpotQALoader, GAIALoader
 from src.evaluation.runner import BenchmarkRunner
