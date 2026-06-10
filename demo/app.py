@@ -1,5 +1,9 @@
 import os
 import sys
+from dotenv import load_dotenv
+
+# Load .env first so HF_HOME (and other vars) from .env are available immediately
+load_dotenv()
 
 # HuggingFace model cache: defaults to models/ inside project root
 # Override by setting HF_HOME in your .env file
@@ -8,16 +12,13 @@ _default_hf_home = os.path.join(_project_root, "models")
 _hf_home = os.environ.get("HF_HOME", _default_hf_home)
 os.environ["HF_HOME"] = _hf_home
 os.environ["TRANSFORMERS_CACHE"] = _hf_home
+
 import yaml
 import gradio as gr
 import json
 import logging
-from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
-
-# Load environment variables from .env file
-load_dotenv()
 
 # Add src/ to path
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
