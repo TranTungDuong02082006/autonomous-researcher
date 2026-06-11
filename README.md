@@ -1,5 +1,13 @@
 # 🚀 System-2 Autonomous AI Researcher
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Framework-LangGraph-orange?style=for-the-badge&logo=langchain" alt="LangGraph" />
+  <img src="https://img.shields.io/badge/Vector_DB-ChromaDB-blue?style=for-the-badge&logo=chromadb" alt="ChromaDB" />
+  <img src="https://img.shields.io/badge/Fine--Tuning-Unsloth_LoRA-red?style=for-the-badge" alt="Unsloth LoRA" />
+  <img src="https://img.shields.io/badge/UI-Gradio-ff5a00?style=for-the-badge&logo=gradio" alt="Gradio" />
+</p>
+
+
 An advanced, multi-agent autonomous framework designed for deep internet research, critical peer review, fact synthesis, and citation-accurate report compilation. Powered by LangGraph state machine reasoning and local vector memory.
 
 <p align="center">
